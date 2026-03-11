@@ -1,0 +1,11 @@
+southmississippisports.com, www.southmississippisports.com {
+  encode zstd gzip
+
+  header {
+    Referrer-Policy "strict-origin-when-cross-origin"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+  }
+
+  reverse_proxy app:3000
+}

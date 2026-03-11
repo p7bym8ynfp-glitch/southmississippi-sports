@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: southmississippi-sports
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    domains:
+      - southmississippisports.com
+    envVars:
+      - key: APP_URL
+        value: https://southmississippisports.com
+      - key: APP_DATA_DIR
+        value: /app/persist/data
+      - key: APP_STORAGE_DIR
+        value: /app/persist/storage
+      - key: WATERMARK_LABEL
+        value: South Mississippi Sports
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+    disk:
+      name: persist
+      mountPath: /app/persist
+      sizeGB: 10
