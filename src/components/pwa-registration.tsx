@@ -8,12 +8,29 @@ export function PwaRegistration() {
       return;
     }
 
-    navigator.serviceWorker
-      .register("/service-worker.js", { updateViaCache: "none" })
-      .then((registration) => registration.update())
+    void navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) =>
+        Promise.all(registrations.map((registration) => registration.unregister())),
+      )
       .catch(() => {
         // Service workers are optional here, so we fail silently.
       });
+
+    if ("caches" in window) {
+      void caches
+        .keys()
+        .then((keys) =>
+          Promise.all(
+            keys
+              .filter((key) => key.startsWith("southmississippi-sports"))
+              .map((key) => caches.delete(key)),
+          ),
+        )
+        .catch(() => {
+          // Cache cleanup is best-effort only.
+        });
+    }
   }, []);
 
   return null;
