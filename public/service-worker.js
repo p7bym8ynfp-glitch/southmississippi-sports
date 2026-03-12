@@ -1,9 +1,26 @@
-﻿const CACHE_NAME = "southmississippi-sports-v1";
-const APP_SHELL = ["/", "/icon.svg"];
+const CACHE_NAME = "southmississippi-sports-v2";
+const STATIC_ASSETS = ["/icon.svg", "/manifest.webmanifest"];
+
+function isSameOrigin(url) {
+  return url.origin === self.location.origin;
+}
+
+function isNavigationRequest(request) {
+  return request.mode === "navigate" || request.destination === "document";
+}
+
+function isStaticAsset(pathname) {
+  return (
+    pathname.startsWith("/_next/static/") ||
+    pathname === "/icon.svg" ||
+    pathname === "/manifest.webmanifest" ||
+    /\.(?:css|js|svg|png|jpg|jpeg|webp|gif|ico)$/i.test(pathname)
+  );
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)),
   );
   self.skipWaiting();
 });
@@ -26,19 +43,35 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
+  const url = new URL(event.request.url);
 
-      return fetch(event.request).then((response) => {
-        const cloned = response.clone();
-        if (response.ok && event.request.url.startsWith(self.location.origin)) {
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
-        }
-        return response;
-      });
+  if (!isSameOrigin(url)) {
+    return;
+  }
+
+  if (isNavigationRequest(event.request) || url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  if (!isStaticAsset(url.pathname)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  event.respondWith(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cached = await cache.match(event.request);
+      const networkRequest = fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            cache.put(event.request, response.clone());
+          }
+          return response;
+        })
+        .catch(() => cached);
+
+      return cached || networkRequest;
     }),
   );
 });

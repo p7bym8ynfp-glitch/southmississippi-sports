@@ -8,9 +8,12 @@ export function PwaRegistration() {
       return;
     }
 
-    navigator.serviceWorker.register("/service-worker.js").catch(() => {
-      // Service workers are optional here, so we fail silently.
-    });
+    navigator.serviceWorker
+      .register("/service-worker.js", { updateViaCache: "none" })
+      .then((registration) => registration.update())
+      .catch(() => {
+        // Service workers are optional here, so we fail silently.
+      });
   }, []);
 
   return null;
