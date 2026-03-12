@@ -56,6 +56,13 @@ export default async function AdminLoginPage({
         <Link href="/" className="mt-6 inline-flex text-sm font-semibold text-[var(--page-muted)] hover:text-[var(--page-accent)]">
           Back to storefront
         </Link>
+        <p className="mt-4 text-xs leading-5 text-[var(--page-muted)]">
+          If this page ever says server action not found after an update, open{" "}
+          <Link href="/api/reset-client" className="font-semibold text-[var(--page-accent)]">
+            reset cached app
+          </Link>{" "}
+          once and then sign in again.
+        </p>
       </section>
     </main>
   );
