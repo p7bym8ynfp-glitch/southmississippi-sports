@@ -127,7 +127,8 @@ export default async function AdminPage({
               </label>
               <label className="block space-y-2 md:col-span-2">
                 <span className="text-sm font-semibold">Photos</span>
-                <input type="file" name="files" multiple accept="image/*" required className="w-full rounded-2xl border border-[var(--page-line)] bg-white px-4 py-3" />
+                <input type="file" name="files" multiple accept=".jpg,.jpeg,.png,.webp,.tif,.tiff" required className="w-full rounded-2xl border border-[var(--page-line)] bg-white px-4 py-3" />
+                <p className="text-xs leading-5 text-[var(--page-muted)]">Supported upload formats: JPG, PNG, WebP, and TIFF.</p>
               </label>
             </div>
 

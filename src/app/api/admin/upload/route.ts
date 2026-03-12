@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { isAdminRequest } from "@/lib/auth";
 import { getAppUrl } from "@/lib/config";
-import { saveUploadedPhoto } from "@/lib/media";
+import { isSupportedUploadFile, saveUploadedPhoto } from "@/lib/media";
 import { addPhotosToGame, readStore } from "@/lib/store";
 import { slugify } from "@/lib/utils";
 
@@ -60,6 +60,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (files.some((file) => !isSupportedUploadFile(file))) {
+    const error = encodeURIComponent(
+      "Use JPG, PNG, WebP, or TIFF files for uploads.",
+    );
+    return NextResponse.redirect(new URL(`/admin?error=${error}`, appUrl));
+  }
+
   const store = await readStore();
   const uploadGameSlug = existingGameSlug
     ? existingGameSlug
@@ -70,8 +77,17 @@ export async function POST(request: NextRequest) {
 
   const uploadedPhotos = [];
 
-  for (const file of files) {
-    uploadedPhotos.push(await saveUploadedPhoto(uploadGameSlug, file));
+  try {
+    for (const file of files) {
+      uploadedPhotos.push(await saveUploadedPhoto(uploadGameSlug, file));
+    }
+  } catch (error) {
+    const message = error instanceof Error
+      ? error.message
+      : "Upload failed. Try JPG, PNG, WebP, or TIFF images.";
+    return NextResponse.redirect(
+      new URL(`/admin?error=${encodeURIComponent(message)}`, appUrl),
+    );
   }
 
   const { game } = await addPhotosToGame({

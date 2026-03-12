@@ -14,6 +14,20 @@ const originalsRoot = path.join(storageRoot, "originals");
 const previewsRoot = path.join(storageRoot, "previews");
 const deliveriesRoot = path.join(storageRoot, "deliveries");
 const watermarkPath = path.join(storageRoot, "watermark.png");
+const supportedImageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"]);
+const supportedImageMimeTypes = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/tiff",
+]);
+
+export function isSupportedUploadFile(file: File) {
+  const extension = path.extname(file.name).toLowerCase();
+  const mimeType = file.type.toLowerCase();
+
+  return supportedImageExtensions.has(extension) || supportedImageMimeTypes.has(mimeType);
+}
 
 function normalizeExtension(extension: string) {
   const normalized = extension.toLowerCase();
@@ -119,7 +133,16 @@ export async function saveUploadedPhoto(gameSlug: string, file: File) {
   await fs.writeFile(originalPath, bytes);
 
   const image = sharp(bytes).rotate();
-  const metadata = await image.metadata();
+  let metadata;
+
+  try {
+    metadata = await image.metadata();
+  } catch {
+    throw new Error(
+      `Unsupported image "${file.name}". Use JPG, PNG, WebP, or TIFF files.`,
+    );
+  }
+
   const width = metadata.width ?? 1600;
   const height = metadata.height ?? 900;
   const targetWidth = Math.min(width, 2200);
