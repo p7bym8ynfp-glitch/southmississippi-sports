@@ -2,6 +2,7 @@
 import type { NextRequest } from "next/server";
 
 import { isAdminRequest } from "@/lib/auth";
+import { getAppUrl } from "@/lib/config";
 import { saveUploadedPhoto } from "@/lib/media";
 import { addPhotosToGame, readStore } from "@/lib/store";
 import { slugify } from "@/lib/utils";
@@ -21,8 +22,10 @@ function uniqueSlug(baseSlug: string, existingSlugs: Set<string>) {
 }
 
 export async function POST(request: NextRequest) {
+  const appUrl = getAppUrl();
+
   if (!isAdminRequest(request)) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    return NextResponse.redirect(new URL("/admin/login", appUrl));
   }
 
   const formData = await request.formData();
@@ -41,19 +44,19 @@ export async function POST(request: NextRequest) {
 
   if (files.length === 0) {
     return NextResponse.redirect(
-      new URL("/admin?error=Select%20at%20least%20one%20image", request.url),
+      new URL("/admin?error=Select%20at%20least%20one%20image", appUrl),
     );
   }
 
   if (!existingGameSlug && !title) {
     return NextResponse.redirect(
-      new URL("/admin?error=Enter%20a%20game%20title%20for%20new%20folders", request.url),
+      new URL("/admin?error=Enter%20a%20game%20title%20for%20new%20folders", appUrl),
     );
   }
 
   if (files.some((file) => !file.type.startsWith("image/"))) {
     return NextResponse.redirect(
-      new URL("/admin?error=Only%20image%20uploads%20are%20supported", request.url),
+      new URL("/admin?error=Only%20image%20uploads%20are%20supported", appUrl),
     );
   }
 
@@ -84,6 +87,6 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.redirect(
-    new URL(`/admin?uploaded=${uploadedPhotos.length}&game=${game.slug}`, request.url),
+    new URL(`/admin?uploaded=${uploadedPhotos.length}&game=${game.slug}`, appUrl),
   );
 }
