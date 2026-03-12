@@ -1,18 +1,26 @@
 ﻿import Stripe from "stripe";
 
-import { getAppUrl, pricing, siteConfig } from "@/lib/config";
+import {
+  getAppUrl,
+  getStripeSecretKey,
+  getStripeWebhookSecret,
+  pricing,
+  siteConfig,
+} from "@/lib/config";
 import type { Game, Photo, ProductKind } from "@/lib/types";
 import { formatMoney } from "@/lib/utils";
 
 let stripeClient: Stripe | null = null;
 
 export function getStripeClient() {
-  if (!process.env.STRIPE_SECRET_KEY) {
+  const stripeSecretKey = getStripeSecretKey();
+
+  if (!stripeSecretKey) {
     return null;
   }
 
   if (!stripeClient) {
-    stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+    stripeClient = new Stripe(stripeSecretKey);
   }
 
   return stripeClient;
@@ -69,14 +77,15 @@ export async function createCheckoutSession(input: {
 
 export function verifyStripeEvent(payload: Buffer, signature: string) {
   const stripe = getStripeClient();
+  const webhookSecret = getStripeWebhookSecret();
 
-  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+  if (!stripe || !webhookSecret) {
     throw new Error("Stripe webhook is not configured yet.");
   }
 
   return stripe.webhooks.constructEvent(
     payload,
     signature,
-    process.env.STRIPE_WEBHOOK_SECRET,
+    webhookSecret,
   );
 }

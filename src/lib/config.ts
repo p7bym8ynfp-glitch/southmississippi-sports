@@ -12,6 +12,22 @@ export const pricing = {
 
 export const deliveryWindowDays = 7;
 
+function getCleanEnvValue(value?: string) {
+  return value?.trim() ?? "";
+}
+
+function isPlaceholderValue(value?: string) {
+  const normalized = getCleanEnvValue(value).toLowerCase();
+
+  return (
+    normalized === "" ||
+    normalized === "not-yet-set" ||
+    normalized === "not-set-yet" ||
+    normalized === "change-this-password" ||
+    normalized === "replace-with-a-strong-password"
+  );
+}
+
 export function getConfiguredAppUrl() {
   return (
     process.env.APP_URL?.trim().replace(/\/+$/, "") ||
@@ -25,7 +41,7 @@ export function getAppUrl() {
 }
 
 export function getAdminPassword() {
-  return process.env.ADMIN_PASSWORD?.trim() ?? "";
+  return getCleanEnvValue(process.env.ADMIN_PASSWORD);
 }
 
 export function hasAdminPassword() {
@@ -33,11 +49,11 @@ export function hasAdminPassword() {
 }
 
 export function isStripeConfigured() {
-  return Boolean(process.env.STRIPE_SECRET_KEY);
+  return Boolean(getStripeSecretKey());
 }
 
 export function isEmailConfigured() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_FROM);
+  return !isPlaceholderValue(process.env.SMTP_HOST) && !isPlaceholderValue(process.env.SMTP_FROM);
 }
 
 export function getWatermarkLabel() {
@@ -50,4 +66,14 @@ export function getDataDirectory() {
 
 export function getStorageDirectory() {
   return process.env.APP_STORAGE_DIR?.trim() || "storage";
+}
+
+export function getStripeSecretKey() {
+  const value = getCleanEnvValue(process.env.STRIPE_SECRET_KEY);
+  return value.startsWith("sk_") ? value : "";
+}
+
+export function getStripeWebhookSecret() {
+  const value = getCleanEnvValue(process.env.STRIPE_WEBHOOK_SECRET);
+  return value.startsWith("whsec_") ? value : "";
 }
