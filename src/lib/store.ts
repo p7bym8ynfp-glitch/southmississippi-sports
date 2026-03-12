@@ -102,6 +102,17 @@ export async function listAdminGames() {
   return listGames({ publishedOnly: false });
 }
 
+export async function getAdminGameSummaries() {
+  const store = await readStore();
+  const games = sortByDateDesc(store.games);
+
+  return games.map((game) => ({
+    game,
+    photoCount: store.photos.filter((photo) => photo.gameId === game.id).length,
+    orderCount: store.orders.filter((order) => order.gameId === game.id).length,
+  }));
+}
+
 export async function getCatalogStats() {
   const store = await readStore();
 
@@ -209,6 +220,38 @@ export async function addPhotosToGame(input: {
 
   await writeStore(store);
   return { game, photos };
+}
+
+export async function deleteGameBySlug(slug: string) {
+  const store = await readStore();
+  const game = store.games.find((entry) => entry.slug === slug);
+
+  if (!game) {
+    return { status: "missing" as const };
+  }
+
+  const orderCount = store.orders.filter((order) => order.gameId === game.id).length;
+
+  if (orderCount > 0) {
+    return {
+      status: "blocked" as const,
+      game,
+      orderCount,
+    };
+  }
+
+  const photos = store.photos.filter((photo) => photo.gameId === game.id);
+
+  store.games = store.games.filter((entry) => entry.id !== game.id);
+  store.photos = store.photos.filter((photo) => photo.gameId !== game.id);
+
+  await writeStore(store);
+
+  return {
+    status: "deleted" as const,
+    game,
+    photos,
+  };
 }
 
 export async function findOrderBySessionId(sessionId: string) {

@@ -1,17 +1,23 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { DeleteGameButton } from "@/components/delete-game-button";
 import { isAdminSession } from "@/lib/auth";
 import { hasAdminPassword } from "@/lib/config";
 import { getWatermarkPath, hasWatermarkImage } from "@/lib/media";
-import { getCatalogStats, listAdminGames, listPhotosForGame } from "@/lib/store";
+import { getAdminGameSummaries, getCatalogStats, listAdminGames } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ uploaded?: string; error?: string; game?: string }>;
+  searchParams: Promise<{
+    uploaded?: string;
+    error?: string;
+    game?: string;
+    deleted?: string;
+  }>;
 }) {
   if (!hasAdminPassword()) {
     redirect("/admin/login?error=Set%20ADMIN_PASSWORD%20first");
@@ -25,12 +31,7 @@ export default async function AdminPage({
   const games = await listAdminGames();
   const stats = await getCatalogStats();
   const watermarkReady = await hasWatermarkImage();
-  const gameSummaries = await Promise.all(
-    games.map(async (game) => ({
-      game,
-      photoCount: (await listPhotosForGame(game.id)).length,
-    })),
-  );
+  const gameSummaries = await getAdminGameSummaries();
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10 sm:px-8 lg:px-10">
@@ -77,6 +78,12 @@ export default async function AdminPage({
       {params.uploaded ? (
         <div className="mt-8 rounded-[24px] border border-emerald-300 bg-emerald-50 p-5 text-sm leading-6 text-emerald-800">
           Uploaded {params.uploaded} photo(s) successfully to <strong>{params.game}</strong>.
+        </div>
+      ) : null}
+
+      {params.deleted ? (
+        <div className="mt-8 rounded-[24px] border border-amber-300 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
+          Deleted <strong>{params.deleted}</strong>.
         </div>
       ) : null}
 
@@ -153,20 +160,32 @@ export default async function AdminPage({
               {gameSummaries.length === 0 ? (
                 <p className="text-base leading-7 text-[var(--page-muted)]">No games uploaded yet.</p>
               ) : (
-                gameSummaries.map(({ game, photoCount }) => (
+                gameSummaries.map(({ game, photoCount, orderCount }) => (
                   <div key={game.id} className="rounded-[24px] border border-[var(--page-line)] bg-white/70 p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <h3 className="text-xl">{game.title}</h3>
                         <p className="mt-1 text-sm leading-6 text-[var(--page-muted)]">{photoCount} photos - {game.published ? "Published" : "Draft"}</p>
+                        {orderCount > 0 ? (
+                          <p className="mt-1 text-xs leading-5 text-[var(--page-muted)]">
+                            {orderCount} paid order{orderCount === 1 ? "" : "s"} attached
+                          </p>
+                        ) : null}
                       </div>
-                      {game.published ? (
-                        <Link href={`/games/${game.slug}`} className="text-sm font-semibold text-[var(--page-accent)]">
-                          View
-                        </Link>
-                      ) : (
-                        <span className="text-sm font-semibold text-[var(--page-muted)]">Draft only</span>
-                      )}
+                      <div className="flex flex-col items-end gap-3 text-right">
+                        {game.published ? (
+                          <Link href={`/games/${game.slug}`} className="text-sm font-semibold text-[var(--page-accent)]">
+                            View
+                          </Link>
+                        ) : (
+                          <span className="text-sm font-semibold text-[var(--page-muted)]">Draft only</span>
+                        )}
+                        <DeleteGameButton
+                          gameSlug={game.slug}
+                          gameTitle={game.title}
+                          orderCount={orderCount}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))

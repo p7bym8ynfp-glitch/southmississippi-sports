@@ -172,6 +172,13 @@ export function getPreviewPath(gameSlug: string, filename: string) {
   return path.join(previewsRoot, gameSlug, filename);
 }
 
+export async function deleteGameMedia(gameSlug: string) {
+  await Promise.all([
+    fs.rm(path.join(originalsRoot, gameSlug), { recursive: true, force: true }),
+    fs.rm(path.join(previewsRoot, gameSlug), { recursive: true, force: true }),
+  ]);
+}
+
 export function getDeliveryArchivePath(token: string) {
   return path.join(deliveriesRoot, `${token}.zip`);
 }
