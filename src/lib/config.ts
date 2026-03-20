@@ -45,7 +45,7 @@ export function getAdminPassword() {
 }
 
 export function getSiteAccessCode() {
-  return getCleanEnvValue(process.env.SITE_ACCESS_CODE);
+  return getCleanEnvValue(process.env.SITE_ACCESS_CODE) || "SMS";
 }
 
 export function hasAdminPassword() {
