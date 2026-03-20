@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { DeleteGameButton } from "@/components/delete-game-button";
@@ -180,11 +180,32 @@ export default async function AdminPage({
                         ) : (
                           <span className="text-sm font-semibold text-[var(--page-muted)]">Draft only</span>
                         )}
-                        <DeleteGameButton
-                          gameSlug={game.slug}
-                          gameTitle={game.title}
-                          orderCount={orderCount}
-                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const select = document.querySelector('select[name="existingGameSlug"]') as HTMLSelectElement;
+                              if (select) {
+                                select.value = game.slug;
+                                select.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                // Highlight the form briefly to show it was selected
+                                const form = select.closest('form');
+                                if (form) {
+                                  form.classList.add('ring-2', 'ring-[var(--page-accent)]', 'ring-offset-4', 'ring-offset-[var(--page-card)]', 'rounded-3xl', 'transition-all', 'duration-500');
+                                  setTimeout(() => form.classList.remove('ring-2', 'ring-[var(--page-accent)]', 'ring-offset-4', 'ring-offset-[var(--page-card)]'), 1500);
+                                }
+                              }
+                            }}
+                            className="inline-flex items-center justify-center rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                          >
+                            Add Photos
+                          </button>
+                          <DeleteGameButton
+                            gameSlug={game.slug}
+                            gameTitle={game.title}
+                            orderCount={orderCount}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
