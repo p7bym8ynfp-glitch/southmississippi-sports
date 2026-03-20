@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 
 import { PwaRegistration } from "@/components/pwa-registration";
-import { getConfiguredAppUrl, siteConfig } from "@/lib/config";
+import { AccessGate } from "@/components/access-gate";
+import { getConfiguredAppUrl, getSiteAccessCode, siteConfig } from "@/lib/config";
 
 import "./globals.css";
 
@@ -34,11 +35,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const accessCode = getSiteAccessCode();
+
   return (
     <html lang="en">
       <body>
         <PwaRegistration />
-        {children}
+        <AccessGate requiredCode={accessCode}>
+          {children}
+        </AccessGate>
       </body>
     </html>
   );

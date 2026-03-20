@@ -1,4 +1,4 @@
-﻿export const siteConfig = {
+export const siteConfig = {
   name: "South Mississippi Sports",
   domain: "southmississippisports.com",
   tagline: "Game-day photos for parents, delivered fast.",
@@ -42,6 +42,10 @@ export function getAppUrl() {
 
 export function getAdminPassword() {
   return getCleanEnvValue(process.env.ADMIN_PASSWORD);
+}
+
+export function getSiteAccessCode() {
+  return getCleanEnvValue(process.env.SITE_ACCESS_CODE);
 }
 
 export function hasAdminPassword() {

@@ -1,4 +1,4 @@
-﻿import { createWriteStream } from "fs";
+import { createWriteStream } from "fs";
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -43,7 +43,7 @@ async function ensureStorageDirectories() {
   ]);
 }
 
-function getTextWatermarkOverlay(width: number, height: number) {
+function getTextWatermarkOverlay(width: number, height: number, hideRepeatingText = false) {
   const label = getWatermarkLabel();
 
   return Buffer.from(
@@ -54,7 +54,7 @@ function getTextWatermarkOverlay(width: number, height: number) {
             <text
               x="16"
               y="120"
-              fill="rgba(255,255,255,0.28)"
+              fill="rgba(255,255,255,${hideRepeatingText ? "0" : "0.28"})"
               font-size="32"
               font-family="Impact, Haettenschweiler, Arial Narrow Bold, sans-serif"
               letter-spacing="4"
@@ -63,11 +63,11 @@ function getTextWatermarkOverlay(width: number, height: number) {
             </text>
           </pattern>
         </defs>
-        <rect x="0" y="0" width="${width}" height="${height}" fill="rgba(5, 13, 24, 0.08)" />
+        ${!hideRepeatingText ? `<rect x="0" y="0" width="${width}" height="${height}" fill="rgba(5, 13, 24, 0.08)" />` : ""}
         <rect x="0" y="0" width="${width}" height="${height}" fill="url(#wm)" />
-        <rect x="32" y="${height - 92}" width="${Math.min(width - 64, 480)}" height="54" rx="14" fill="rgba(5,13,24,0.58)" />
+        <rect x="${width / 2 - Math.min(width - 64, 480) / 2}" y="${height - 92}" width="${Math.min(width - 64, 480)}" height="54" rx="14" fill="rgba(5,13,24,0.58)" />
         <text
-          x="56"
+          x="${width / 2 - 96}"
           y="${height - 56}"
           fill="white"
           font-size="24"
@@ -85,28 +85,27 @@ async function getWatermarkLayers(
   width: number,
   height: number,
 ): Promise<OverlayOptions[]> {
-  const layers: OverlayOptions[] = [{ input: getTextWatermarkOverlay(width, height) }];
-
   try {
     await fs.access(watermarkPath);
+    
+    // Custom watermark logo (QR Code)
     const watermark = await sharp(watermarkPath)
       .resize({
-        width: Math.max(240, Math.floor(width * 0.36)),
+        width: Math.max(380, Math.floor(width * 0.50)), // Larger size
         withoutEnlargement: true,
       })
       .png()
-      .ensureAlpha(0.18)
+      .ensureAlpha(0.45) // Better visibility
       .toBuffer();
 
-    layers.push({
-      input: watermark,
-      gravity: "center",
-    });
+    return [
+      { input: getTextWatermarkOverlay(width, height, true) }, // Text layer (banner only)
+      { input: watermark, gravity: "center" } // Centered Logo
+    ];
   } catch {
-    return layers;
+    // Fallback to repeating text pattern
+    return [{ input: getTextWatermarkOverlay(width, height, false) }];
   }
-
-  return layers;
 }
 
 export async function saveUploadedPhoto(gameSlug: string, file: File) {
