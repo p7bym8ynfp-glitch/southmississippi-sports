@@ -51,7 +51,7 @@ export function AccessGate({ children, requiredCode }: AccessGateProps) {
         <div className="space-y-6">
           <div className="mx-auto w-32 h-32 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl group transition-all duration-500 hover:border-[#ff3b3b]/50">
              <img 
-               src="/storage/watermark.png" 
+               src="/watermark.png" 
                alt="QR Access" 
                className="w-20 h-20 opacity-80 group-hover:opacity-100 transition-opacity" 
                onError={(e) => (e.currentTarget.style.display = 'none')} 
