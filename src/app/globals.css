@@ -1,21 +1,21 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 :root {
-  --page-cream: #f6f0e5;
-  --page-paper: #fff8ef;
-  --page-ink: #081220;
-  --page-muted: #516071;
-  --page-accent: #a13b2f;
-  --page-accent-soft: #d98a62;
-  --page-line: rgba(8, 18, 32, 0.12);
-  --page-card: rgba(255, 248, 239, 0.92);
+  --page-stadium: #050d18;
+  --page-deep-blue: #081220;
+  --page-slate: #f1f5f9;
+  --page-muted: #94a3b8;
+  --page-accent: #ff3b3b; /* Vibrant Sports Red */
+  --page-accent-soft: #ffb8b8;
+  --page-line: rgba(255, 255, 255, 0.1);
+  --page-card: rgba(8, 18, 32, 0.65);
   --font-body: Aptos, "Trebuchet MS", sans-serif;
   --font-display: Bahnschrift, "Franklin Gothic Medium", "Arial Narrow Bold", sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--page-paper);
-  --color-foreground: var(--page-ink);
+  --color-background: var(--page-stadium);
+  --color-foreground: var(--page-slate);
   --font-sans: var(--font-body);
 }
 
@@ -30,10 +30,8 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(circle at top, rgba(217, 138, 98, 0.22), transparent 28%),
-    linear-gradient(180deg, #faf1e1 0%, #f5eee4 46%, #f0ece7 100%);
-  color: var(--page-ink);
+  background: var(--page-stadium);
+  color: var(--page-slate);
   font-family: var(--font-body);
 }
 

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { pricing, siteConfig } from "@/lib/config";
 import { getCatalogStats, listGames, listPhotosForGame } from "@/lib/store";
@@ -25,138 +25,130 @@ export default async function Home() {
 
   return (
     <main className="pb-20">
-      <section className="mx-auto max-w-6xl px-6 pt-8 sm:px-8 lg:px-10">
-        <div className="flex flex-col gap-6 rounded-[32px] border border-[var(--page-line)] bg-[linear-gradient(135deg,rgba(8,18,32,0.96),rgba(31,56,87,0.95))] p-8 text-[var(--page-paper)] shadow-[0_24px_60px_rgba(8,18,32,0.18)] sm:p-10 lg:p-12">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl space-y-5">
-              <p className="inline-flex w-fit rounded-full border border-white/20 bg-white/8 px-4 py-2 text-xs uppercase tracking-[0.3em] text-amber-100">
+      {/* Dynamic Hero Section */}
+      <section className="relative h-[85vh] w-full overflow-hidden flex items-center justify-center">
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center brightness-[0.4]" 
+          style={{ backgroundImage: 'url("/hero-bg.png")' }}
+        />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-[var(--page-stadium)] via-transparent to-transparent" />
+        
+        <div className="relative z-10 w-full max-w-6xl px-6 text-center space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+           <div className="flex flex-col items-center gap-4">
+              <p className="inline-flex rounded-full border border-white/20 bg-white/5 backdrop-blur-md px-5 py-2 text-xs uppercase tracking-[0.4em] text-amber-400">
                 {siteConfig.domain}
               </p>
-              <div className="space-y-4">
-                <h1 className="max-w-3xl text-4xl leading-none sm:text-5xl lg:text-6xl">
-                  Sports photo sales built for quick game-night delivery.
-                </h1>
-                <p className="max-w-2xl text-lg leading-8 text-slate-200 sm:text-xl">
-                  Upload each game into its own folder, show watermarked previews, and let parents buy a single image for {formatMoney(pricing.singlePhotoCents)} or the whole game folder for {formatMoney(pricing.fullGameCents)}.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center justify-center rounded-full bg-[var(--page-accent-soft)] px-6 py-3 font-semibold text-[var(--page-ink)] transition hover:translate-y-[-1px]"
-                >
-                  Upload a game
-                </Link>
-                <Link
-                  href="#games"
-                  className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/8"
-                >
-                  Browse live galleries
-                </Link>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3 lg:w-[360px] lg:grid-cols-1">
-              <article className="rounded-[24px] border border-white/12 bg-white/8 p-5 backdrop-blur">
-                <p className="text-sm uppercase tracking-[0.2em] text-slate-300">Live games</p>
-                <p className="mt-3 text-4xl font-semibold">{stats.publishedGames}</p>
-              </article>
-              <article className="rounded-[24px] border border-white/12 bg-white/8 p-5 backdrop-blur">
-                <p className="text-sm uppercase tracking-[0.2em] text-slate-300">Uploaded photos</p>
-                <p className="mt-3 text-4xl font-semibold">{stats.totalPhotos}</p>
-              </article>
-              <article className="rounded-[24px] border border-white/12 bg-white/8 p-5 backdrop-blur">
-                <p className="text-sm uppercase tracking-[0.2em] text-slate-300">Delivery flow</p>
-                <p className="mt-3 text-base leading-7 text-slate-100">Stripe checkout, instant unwatermarked downloads, and email fulfillment from one place.</p>
-              </article>
-            </div>
-          </div>
+              <h1 className="max-w-4xl text-5xl leading-[1.1] font-bold tracking-tighter sm:text-7xl lg:text-8xl drop-shadow-2xl">
+                ELITE GAME DAY PHOTOGRAPHY
+              </h1>
+              <p className="max-w-2xl text-lg leading-8 text-slate-300 sm:text-2xl font-light">
+                Professional action shots from local fields, delivered instantly to your device.
+              </p>
+           </div>
+
+           <div className="flex flex-col gap-4 justify-center sm:flex-row">
+              <Link
+                href="#games"
+                className="inline-flex items-center justify-center rounded-full bg-[var(--page-accent)] px-10 py-4 text-lg font-bold text-white shadow-[0_10px_30px_rgba(255,59,59,0.3)] transition hover:scale-105 active:scale-95"
+              >
+                Browse Galleries
+              </Link>
+              <Link
+                href="/admin"
+                className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/5 backdrop-blur-md px-8 py-4 text-lg font-semibold text-white transition hover:bg-white/10"
+              >
+                Admin Access
+              </Link>
+           </div>
         </div>
       </section>
 
-      <section className="mx-auto mt-10 grid max-w-6xl gap-5 px-6 sm:grid-cols-2 sm:px-8 lg:grid-cols-3 lg:px-10">
-        {[
-          {
-            title: "Parents find the right game fast",
-            copy: "Every upload lands inside a game folder with date, opponent, and location so browsing stays simple on phones.",
-          },
-          {
-            title: "Watermarked previews stay public",
-            copy: "Previews are safe to browse, and the original files stay locked until purchase is complete.",
-          },
-          {
-            title: "Fulfillment is immediate",
-            copy: "After payment, the site unlocks the originals and emails a secure link or attachment whenever file size allows.",
-          },
-        ].map((item) => (
-          <article
-            key={item.title}
-            className="rounded-[28px] border border-[var(--page-line)] bg-[var(--page-card)] p-6 shadow-[0_16px_32px_rgba(8,18,32,0.06)]"
-          >
-            <h2 className="text-2xl">{item.title}</h2>
-            <p className="mt-3 text-base leading-7 text-[var(--page-muted)]">{item.copy}</p>
-          </article>
-        ))}
-      </section>
-
-      <section id="games" className="mx-auto mt-14 max-w-6xl px-6 sm:px-8 lg:px-10">
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-[var(--page-accent)]">Live galleries</p>
-            <h2 className="mt-2 text-3xl sm:text-4xl">Parents can browse by game folder and buy in seconds.</h2>
+      {/* Stats Line */}
+      <div className="relative z-20 mx-auto -mt-10 max-w-6xl px-6">
+          <div className="grid grid-cols-2 gap-px rounded-[32px] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-2xl sm:grid-cols-4 shadow-2xl">
+              <div className="p-8 text-center border-r border-white/10">
+                  <p className="text-xs uppercase tracking-widest text-slate-400 mb-2">Galleries</p>
+                  <p className="text-4xl font-bold text-white tracking-tight">{stats.publishedGames}</p>
+              </div>
+              <div className="p-8 text-center sm:border-r border-white/10">
+                  <p className="text-xs uppercase tracking-widest text-slate-400 mb-2">Total Photos</p>
+                  <p className="text-4xl font-bold text-white tracking-tight">{stats.totalPhotos.toLocaleString()}</p>
+              </div>
+              <div className="p-8 text-center border-r border-white/10">
+                  <p className="text-xs uppercase tracking-widest text-slate-400 mb-2">Photo Price</p>
+                  <p className="text-4xl font-bold text-[var(--page-accent)] tracking-tight">{formatMoney(pricing.singlePhotoCents)}</p>
+              </div>
+              <div className="p-8 text-center">
+                  <p className="text-xs uppercase tracking-widest text-slate-400 mb-2">Full Access</p>
+                  <p className="text-4xl font-bold text-white tracking-tight">{formatMoney(pricing.fullGameCents)}</p>
+              </div>
           </div>
-          <p className="max-w-md text-sm leading-6 text-[var(--page-muted)]">
-            The current pricing matches your request exactly, including the full-folder special at {formatMoney(pricing.fullGameCents)}.
-          </p>
+      </div>
+
+      <section id="games" className="mx-auto mt-24 max-w-6xl px-6 sm:px-8 lg:px-10">
+        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-[0.4em] text-[var(--page-accent)] font-bold mb-3">Live Now</p>
+            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white italic underline decoration-[var(--page-accent)] decoration-4 underline-offset-8">LATEST GAME GALLERIES</h2>
+          </div>
         </div>
 
         {featuredGames.length === 0 ? (
-          <div className="rounded-[28px] border border-dashed border-[var(--page-line)] bg-[var(--page-card)] p-10 text-center shadow-[0_16px_32px_rgba(8,18,32,0.05)]">
-            <h3 className="text-2xl">No live game folders yet</h3>
-            <p className="mt-3 text-base leading-7 text-[var(--page-muted)]">
-              Log into the admin area, upload a batch of photos, and the public gallery will populate automatically.
+          <div className="rounded-[40px] border border-dashed border-white/10 bg-white/5 p-20 text-center backdrop-blur-sm">
+            <h3 className="text-3xl font-bold text-white">No game folders yet</h3>
+            <p className="mt-4 text-lg text-slate-400">
+              Check back soon for latest tournament and friday night coverage.
             </p>
             <Link
               href="/admin"
-              className="mt-6 inline-flex rounded-full bg-[var(--page-accent)] px-5 py-3 font-semibold text-white"
+              className="mt-8 inline-flex rounded-full bg-[var(--page-accent)] px-8 py-3 font-bold text-white shadow-lg"
             >
               Open admin
             </Link>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-3">
             {featuredGames.map(({ game, cover, photoCount }) => (
               <article
                 key={game.id}
-                className="overflow-hidden rounded-[30px] border border-[var(--page-line)] bg-[var(--page-card)] shadow-[0_18px_40px_rgba(8,18,32,0.08)] transition hover:translate-y-[-2px]"
+                className="group relative overflow-hidden rounded-[40px] border border-white/10 bg-[var(--page-card)] backdrop-blur-md shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-[var(--page-accent)/30]"
               >
-                <Link href={`/games/${game.slug}`} className="block">
+                <Link href={`/games/${game.slug}`} className="block relative aspect-[4/3] overflow-hidden">
                   {cover ? (
                     <img
                       src={`/api/media/preview/${cover.id}`}
                       alt={`${game.title} preview`}
-                      className="h-72 w-full object-cover"
+                      className="h-full w-full object-cover grayscale-[30%] transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
                     />
                   ) : (
-                    <div className="flex h-72 items-center justify-center bg-[linear-gradient(135deg,#10253f,#a13b2f)] p-8 text-center text-xl text-white">
+                    <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#0a1b32,#ff3b3b)] p-8 text-center text-xl text-white">
                       {game.title}
                     </div>
                   )}
-                </Link>
-                <div className="space-y-4 p-6">
-                  <div className="space-y-2">
-                    <p className="text-sm uppercase tracking-[0.24em] text-[var(--page-accent)]">{game.sport}</p>
-                    <h3 className="text-2xl">{game.title}</h3>
-                    <p className="text-sm text-[var(--page-muted)]">{formatGameDate(game.date)}{game.location ? ` - ${game.location}` : ""}</p>
+                  <div className="absolute top-6 left-6 inline-flex rounded-full bg-black/60 backdrop-blur-md px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                    {game.sport}
                   </div>
-                  <div className="flex items-center justify-between text-sm text-[var(--page-muted)]">
-                    <span>{photoCount} photos</span>
-                    <span>Full folder {formatMoney(pricing.fullGameCents)}</span>
+                </Link>
+                <div className="space-y-6 p-8">
+                  <div className="space-y-2">
+                    <h3 className="text-3xl font-bold text-white tracking-tight">{game.title}</h3>
+                    <p className="text-sm font-medium text-slate-400">{formatGameDate(game.date)}{game.location ? ` - ${game.location}` : ""}</p>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-white/5 pt-6 text-sm">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] uppercase tracking-widest text-slate-500">Photographs</span>
+                        <span className="text-lg font-bold text-white">{photoCount}</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[10px] uppercase tracking-widest text-slate-500">Bundle Price</span>
+                        <span className="text-lg font-bold text-[var(--page-accent)]">{formatMoney(pricing.fullGameCents)}</span>
+                    </div>
                   </div>
                   <Link
                     href={`/games/${game.slug}`}
-                    className="inline-flex rounded-full border border-[var(--page-line)] px-5 py-3 font-semibold text-[var(--page-ink)] transition hover:border-[var(--page-accent)] hover:text-[var(--page-accent)]"
+                    className="flex w-full items-center justify-center rounded-2xl bg-white/5 py-4 text-sm font-bold uppercase tracking-widest text-white transition hover:bg-[var(--page-accent)] group-hover:shadow-[0_4px_20px_rgba(255,59,59,0.2)]"
                   >
-                    Open gallery
+                    Open Gallery
                   </Link>
                 </div>
               </article>
