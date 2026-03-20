@@ -35,7 +35,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const accessCode = getSiteAccessCode();
+  const accessCode = getSiteAccessCode() || siteConfig.domain;
 
   return (
     <html lang="en">

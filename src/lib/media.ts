@@ -14,6 +14,7 @@ const originalsRoot = path.join(storageRoot, "originals");
 const previewsRoot = path.join(storageRoot, "previews");
 const deliveriesRoot = path.join(storageRoot, "deliveries");
 const watermarkPath = path.join(storageRoot, "watermark.png");
+const fallbackWatermarkPath = path.join(process.cwd(), "public", "watermark.png");
 const supportedImageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"]);
 const supportedImageMimeTypes = new Set([
   "image/jpeg",
@@ -86,10 +87,17 @@ async function getWatermarkLayers(
   height: number,
 ): Promise<OverlayOptions[]> {
   try {
-    await fs.access(watermarkPath);
+    let finalWatermarkPath = watermarkPath;
+    
+    try {
+      await fs.access(watermarkPath);
+    } catch {
+      await fs.access(fallbackWatermarkPath);
+      finalWatermarkPath = fallbackWatermarkPath;
+    }
     
     // Custom watermark logo (QR Code)
-    const watermark = await sharp(watermarkPath)
+    const watermark = await sharp(finalWatermarkPath)
       .resize({
         width: Math.max(380, Math.floor(width * 0.50)), // Larger size
         withoutEnlargement: true,
