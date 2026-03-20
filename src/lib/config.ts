@@ -6,8 +6,8 @@ export const siteConfig = {
 };
 
 export const pricing = {
-  singlePhotoCents: 2_000,
-  fullGameCents: 1_500,
+  singlePhotoCents: 1_500,
+  fullGameCents: 2_000,
 };
 
 export const deliveryWindowDays = 7;
