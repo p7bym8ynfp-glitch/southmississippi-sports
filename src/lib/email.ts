@@ -1,4 +1,4 @@
-﻿import nodemailer from "nodemailer";
+import nodemailer from "nodemailer";
 
 import { getAppUrl, isEmailConfigured, siteConfig } from "@/lib/config";
 import { getDeliveryArchivePath, getFileSize, getOriginalPath } from "@/lib/media";
@@ -111,12 +111,18 @@ export async function sendDeliveryEmail(input: {
     </div>
   `;
 
-  await getTransport().sendMail({
-    from: process.env.SMTP_FROM,
-    to: input.order.email,
-    subject,
-    text,
-    html,
-    attachments,
-  });
+  try {
+    await getTransport().sendMail({
+      from: process.env.SMTP_FROM,
+      to: input.order.email,
+      subject,
+      text,
+      html,
+      attachments,
+    });
+  } catch (error) {
+    console.error("CRITICAL: Failed to send delivery email:", error);
+    // We don't throw here to avoid crashing the webhook fulfillment, 
+    // but the error is now visible in logs.
+  }
 }

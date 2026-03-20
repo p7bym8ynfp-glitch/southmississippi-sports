@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { BuyButton } from "@/components/buy-button";
 import { pricing } from "@/lib/config";
@@ -7,6 +9,21 @@ import { getGameWithPhotosBySlug } from "@/lib/store";
 import { formatGameDate, formatMoney, padPhotoNumber } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const bundle = await getGameWithPhotosBySlug(slug);
+  if (!bundle) return {};
+
+  return {
+    title: `${bundle.game.title} | ${bundle.game.sport} Gallery`,
+    description: bundle.game.description || `View and purchase professional photos from ${bundle.game.title}.`,
+  };
+}
 
 export default async function GamePage({
   params,
@@ -79,11 +96,13 @@ export default async function GamePage({
             key={photo.id}
             className="overflow-hidden rounded-[28px] border border-[var(--page-line)] bg-[var(--page-card)] shadow-[0_16px_30px_rgba(8,18,32,0.07)]"
           >
-            <Link href={`/photos/${photo.id}`} className="block">
-              <img
+            <Link href={`/photos/${photo.id}`} className="block relative h-80 overflow-hidden">
+              <Image
                 src={`/api/media/preview/${photo.id}`}
                 alt={`${game.title} photo ${photo.sortOrder}`}
-                className="h-80 w-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-500 hover:scale-105"
               />
             </Link>
             <div className="space-y-4 p-5">

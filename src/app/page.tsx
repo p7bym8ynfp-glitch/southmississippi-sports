@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { pricing, siteConfig } from "@/lib/config";
 import { getCatalogStats, listGames, listPhotosForGame } from "@/lib/store";
@@ -115,10 +116,12 @@ export default async function Home() {
               >
                 <Link href={`/games/${game.slug}`} className="block relative aspect-[4/3] overflow-hidden">
                   {cover ? (
-                    <img
+                    <Image
                       src={`/api/media/preview/${cover.id}`}
                       alt={`${game.title} preview`}
-                      className="h-full w-full object-cover grayscale-[30%] transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover grayscale-[30%] transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#0a1b32,#ff3b3b)] p-8 text-center text-xl text-white">

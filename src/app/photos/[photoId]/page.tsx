@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { BuyButton } from "@/components/buy-button";
 import { pricing } from "@/lib/config";
@@ -7,6 +9,22 @@ import { getGameById, getPhotoById } from "@/lib/store";
 import { formatGameDate, formatMoney, padPhotoNumber } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ photoId: string }>;
+}): Promise<Metadata> {
+  const { photoId } = await params;
+  const photo = await getPhotoById(photoId);
+  if (!photo) return {};
+
+  const game = await getGameById(photo.gameId);
+  return {
+    title: `Photo ${padPhotoNumber(photo.sortOrder)} | ${game?.title || "South Mississippi Sports"}`,
+    description: `Purchase high-resolution action shots from ${game?.title || "this game"}.`,
+  };
+}
 
 export default async function PhotoPage({
   params,
@@ -43,10 +61,13 @@ export default async function PhotoPage({
       <section className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr]">
         <article className="overflow-hidden rounded-[40px] border border-white/10 bg-[var(--page-card)] shadow-2xl backdrop-blur-md">
           <div className="relative aspect-[4/3] w-full overflow-hidden">
-            <img
+            <Image
               src={`/api/media/preview/${photo.id}`}
               alt={`${game.title} photo ${photo.sortOrder}`}
-              className="h-full w-full object-cover grayscale-[10%] transition-all duration-700 hover:grayscale-0 hover:scale-105"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 80vw"
+              className="object-cover grayscale-[10%] transition-all duration-700 hover:grayscale-0 hover:scale-105"
             />
             <div className="absolute top-6 left-6 inline-flex rounded-full bg-black/60 backdrop-blur-md px-5 py-2 text-[10px] font-bold uppercase tracking-[0.3em] text-white">
               {game.sport} | PREVIEW

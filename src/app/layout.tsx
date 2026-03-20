@@ -18,16 +18,27 @@ try {
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: siteConfig.name,
+    default: "South Mississippi Sports | Professional Athlete Photography",
     template: `%s | ${siteConfig.name}`,
   },
-  description: siteConfig.tagline,
+  description: "High-impact sports photography from South Mississippi. Instant digital delivery of professional unwatermarked action shots.",
   applicationName: siteConfig.name,
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    title: "South Mississippi Sports",
+    description: "Professional Athlete Photography & Instant Delivery",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "South Mississippi Sports",
+    description: "Professional Athlete Photography & Instant Delivery",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#a13b2f",
+  themeColor: "#050d18",
 };
 
 export default function RootLayout({
