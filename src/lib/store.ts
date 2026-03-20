@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -251,6 +251,35 @@ export async function deleteGameBySlug(slug: string) {
     status: "deleted" as const,
     game,
     photos,
+  };
+}
+
+export async function deletePhotoById(photoId: string) {
+  const store = await readStore();
+  const photo = store.photos.find((entry) => entry.id === photoId);
+
+  if (!photo) {
+    return { status: "missing" as const };
+  }
+
+  const orderCount = store.orders.filter(
+    (order) => order.photoIds.includes(photo.id) || (order.kind === "folder" && order.gameId === photo.gameId)
+  ).length;
+
+  if (orderCount > 0) {
+    return {
+      status: "blocked" as const,
+      photo,
+      orderCount,
+    };
+  }
+
+  store.photos = store.photos.filter((entry) => entry.id !== photo.id);
+  await writeStore(store);
+
+  return {
+    status: "deleted" as const,
+    photo,
   };
 }
 

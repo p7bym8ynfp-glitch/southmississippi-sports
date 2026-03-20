@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { BuyButton } from "@/components/buy-button";
+import { DeletePhotoButton } from "@/components/delete-photo-button";
+import { isAdminSession } from "@/lib/auth";
 import { pricing } from "@/lib/config";
 import { getGameWithPhotosBySlug } from "@/lib/store";
 import { formatGameDate, formatMoney, padPhotoNumber } from "@/lib/utils";
@@ -38,6 +40,7 @@ export default async function GamePage({
   }
 
   const { game, photos } = bundle;
+  const isAdmin = await isAdminSession();
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10 sm:px-8 lg:px-10">
@@ -94,8 +97,9 @@ export default async function GamePage({
         {photos.map((photo) => (
           <article
             key={photo.id}
-            className="overflow-hidden rounded-[28px] border border-[var(--page-line)] bg-[var(--page-card)] shadow-[0_16px_30px_rgba(8,18,32,0.07)]"
+            className="relative overflow-hidden rounded-[28px] border border-[var(--page-line)] bg-[var(--page-card)] shadow-[0_16px_30px_rgba(8,18,32,0.07)]"
           >
+            {isAdmin && <DeletePhotoButton photoId={photo.id} />}
             <Link href={`/photos/${photo.id}`} className="block relative h-80 overflow-hidden">
               <Image
                 src={`/api/media/preview/${photo.id}`}

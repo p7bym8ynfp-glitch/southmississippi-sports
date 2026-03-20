@@ -186,6 +186,17 @@ export async function deleteGameMedia(gameSlug: string) {
   ]);
 }
 
+export async function deletePhotoMedia(gameSlug: string, originalFilename: string, previewFilename: string) {
+  try {
+    await Promise.all([
+      fs.rm(path.join(originalsRoot, gameSlug, originalFilename), { force: true }),
+      fs.rm(path.join(previewsRoot, gameSlug, previewFilename), { force: true }),
+    ]);
+  } catch {
+    // Ignore if already deleted
+  }
+}
+
 export function getDeliveryArchivePath(token: string) {
   return path.join(deliveriesRoot, `${token}.zip`);
 }

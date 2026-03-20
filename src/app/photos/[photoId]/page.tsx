@@ -65,6 +65,7 @@ export default async function PhotoPage({
               src={`/api/media/preview/${photo.id}`}
               alt={`${game.title} photo ${photo.sortOrder}`}
               fill
+              unoptimized
               priority
               sizes="(max-width: 768px) 100vw, 80vw"
               className="object-cover grayscale-[10%] transition-all duration-700 hover:grayscale-0 hover:scale-105"
