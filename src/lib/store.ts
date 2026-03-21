@@ -77,7 +77,7 @@ export async function listGames(options?: { publishedOnly?: boolean }) {
   const store = await readStore();
 
   return sortByDateDesc(
-    store.games.filter((game) => (publishedOnly ? game.published : true)),
+    (store.games || []).filter((game) => (publishedOnly ? game?.published : true) && game !== null),
   );
 }
 
@@ -86,7 +86,7 @@ export async function getGameBySlug(
   options?: { includeUnpublished?: boolean },
 ) {
   const store = await readStore();
-  const game = store.games.find((entry) => entry.slug === slug);
+  const game = (store.games || []).find((entry) => entry?.slug === slug);
 
   if (!game) {
     return null;
@@ -101,19 +101,19 @@ export async function getGameBySlug(
 
 export async function getGameById(id: string) {
   const store = await readStore();
-  return store.games.find((entry) => entry.id === id) ?? null;
+  return (store.games || []).find((entry) => entry?.id === id) ?? null;
 }
 
 export async function listPhotosForGame(gameId: string) {
   const store = await readStore();
-  return [...store.photos]
-    .filter((photo) => photo.gameId === gameId)
-    .sort((left, right) => left.sortOrder - right.sortOrder);
+  return [...(store.photos || [])]
+    .filter((photo) => photo?.gameId === gameId)
+    .sort((left, right) => (left?.sortOrder || 0) - (right?.sortOrder || 0));
 }
 
 export async function getPhotoById(id: string) {
   const store = await readStore();
-  return store.photos.find((entry) => entry.id === id) ?? null;
+  return (store.photos || []).find((entry) => entry?.id === id) ?? null;
 }
 
 export async function getGameWithPhotosBySlug(
@@ -136,12 +136,12 @@ export async function listAdminGames() {
 
 export async function getAdminGameSummaries() {
   const store = await readStore();
-  const games = sortByDateDesc(store.games);
+  const games = sortByDateDesc(store.games || []);
 
   return games.map((game) => ({
     game,
-    photoCount: store.photos.filter((photo) => photo.gameId === game.id).length,
-    orderCount: store.orders.filter((order) => order.gameId === game.id).length,
+    photoCount: (store.photos || []).filter((photo) => photo?.gameId === game?.id).length,
+    orderCount: (store.orders || []).filter((order) => order?.gameId === game?.id).length,
   }));
 }
 
@@ -149,8 +149,8 @@ export async function getCatalogStats() {
   const store = await readStore();
 
   return {
-    publishedGames: store.games.filter((game) => game.published).length,
-    totalPhotos: store.photos.length,
+    publishedGames: (store.games || []).filter((game) => game?.published).length,
+    totalPhotos: (store.photos || []).filter((photo) => photo !== null).length,
   };
 }
 
