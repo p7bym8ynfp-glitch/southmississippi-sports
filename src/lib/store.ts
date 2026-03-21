@@ -40,6 +40,27 @@ export async function writeStore(store: StoreData) {
   await fs.rename(tempPath, storePath);
 }
 
+// Global Mutex for atomic store updates
+let storeLock = Promise.resolve();
+
+async function updateStore<T>(mutator: (store: StoreData) => T | Promise<T>): Promise<T> {
+  const release = await new Promise<() => void>((resolve) => {
+    storeLock = storeLock.then(() => {
+      resolve(() => {});
+      return new Promise((r) => setTimeout(r, 0)); // Yield to event loop
+    });
+  });
+
+  try {
+    const store = await readStore();
+    const result = await mutator(store);
+    await writeStore(store);
+    return result;
+  } finally {
+    release();
+  }
+}
+
 export async function listGames(options?: { publishedOnly?: boolean }) {
   const publishedOnly = options?.publishedOnly ?? true;
   const store = await readStore();
@@ -223,64 +244,63 @@ export async function addPhotosToGame(input: {
 }
 
 export async function deleteGameBySlug(slug: string) {
-  const store = await readStore();
-  const game = store.games.find((entry) => entry.slug === slug);
+  return updateStore((store) => {
+    const game = store.games.find((entry) => entry.slug === slug);
 
-  if (!game) {
-    return { status: "missing" as const };
-  }
+    if (!game) {
+      return { status: "missing" as const };
+    }
 
-  const orderCount = store.orders.filter((order) => order.gameId === game.id).length;
+    const orderCount = store.orders.filter((order) => order.gameId === game.id).length;
 
-  if (orderCount > 0) {
+    if (orderCount > 0) {
+      return {
+        status: "blocked" as const,
+        game,
+        orderCount,
+      };
+    }
+
+    const photos = store.photos.filter((photo) => photo.gameId === game.id);
+
+    store.games = store.games.filter((entry) => entry.id !== game.id);
+    store.photos = store.photos.filter((photo) => photo.gameId !== game.id);
+
     return {
-      status: "blocked" as const,
+      status: "deleted" as const,
       game,
-      orderCount,
+      photos,
     };
-  }
-
-  const photos = store.photos.filter((photo) => photo.gameId === game.id);
-
-  store.games = store.games.filter((entry) => entry.id !== game.id);
-  store.photos = store.photos.filter((photo) => photo.gameId !== game.id);
-
-  await writeStore(store);
-
-  return {
-    status: "deleted" as const,
-    game,
-    photos,
-  };
+  });
 }
 
 export async function deletePhotoById(photoId: string) {
-  const store = await readStore();
-  const photo = store.photos.find((entry) => entry.id === photoId);
+  return updateStore((store) => {
+    const photo = store.photos.find((entry) => entry.id === photoId);
 
-  if (!photo) {
-    return { status: "missing" as const };
-  }
+    if (!photo) {
+      return { status: "missing" as const };
+    }
 
-  const orderCount = store.orders.filter(
-    (order) => order.photoIds.includes(photo.id) || (order.kind === "folder" && order.gameId === photo.gameId)
-  ).length;
+    const orderCount = store.orders.filter(
+      (order) => order.photoIds.includes(photo.id) || (order.kind === "folder" && order.gameId === photo.gameId)
+    ).length;
 
-  if (orderCount > 0) {
+    if (orderCount > 0) {
+      return {
+        status: "blocked" as const,
+        photo,
+        orderCount,
+      };
+    }
+
+    store.photos = store.photos.filter((entry) => entry.id !== photo.id);
+
     return {
-      status: "blocked" as const,
+      status: "deleted" as const,
       photo,
-      orderCount,
     };
-  }
-
-  store.photos = store.photos.filter((entry) => entry.id !== photo.id);
-  await writeStore(store);
-
-  return {
-    status: "deleted" as const,
-    photo,
-  };
+  });
 }
 
 export async function findOrderBySessionId(sessionId: string) {
@@ -296,22 +316,22 @@ export async function findOrderByToken(token: string) {
 export async function createFulfilledOrder(
   input: Omit<Order, "id" | "createdAt">,
 ) {
-  const store = await readStore();
-  const existing = store.orders.find(
-    (order) => order.stripeSessionId === input.stripeSessionId,
-  );
+  return updateStore((store) => {
+    const existing = store.orders.find(
+      (order) => order.stripeSessionId === input.stripeSessionId,
+    );
 
-  if (existing) {
-    return existing;
-  }
+    if (existing) {
+      return existing;
+    }
 
-  const order: Order = {
-    id: randomUUID(),
-    createdAt: new Date().toISOString(),
-    ...input,
-  };
+    const order: Order = {
+      id: randomUUID(),
+      createdAt: new Date().toISOString(),
+      ...input,
+    };
 
-  store.orders.unshift(order);
-  await writeStore(store);
-  return order;
+    store.orders.unshift(order);
+    return order;
+  });
 }

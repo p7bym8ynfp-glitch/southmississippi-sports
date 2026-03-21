@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 
 import type Stripe from "stripe";
 
@@ -75,7 +75,13 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
     ).toISOString(),
   });
 
-  await sendDeliveryEmail({ order, game, photos });
+  try {
+    await sendDeliveryEmail({ order, game, photos });
+  } catch (error) {
+    // If SMTP fails, the customer can still access downloads via the thank-you page.
+    console.error("SMTP failed to deliver receipt, but order was fulfilled:", error);
+  }
+
   return order;
 }
 
