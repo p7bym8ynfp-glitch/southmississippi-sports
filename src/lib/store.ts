@@ -27,10 +27,21 @@ async function ensureStoreFile() {
 
 export async function readStore() {
   await ensureStoreFile();
-  const raw = await fs.readFile(storePath, "utf8");
-  return raw.trim().length > 0
-    ? (JSON.parse(raw) as StoreData)
-    : structuredClone(emptyStore);
+  try {
+    const raw = await fs.readFile(storePath, "utf8");
+    if (raw.trim().length === 0) return structuredClone(emptyStore);
+    
+    const parsed = JSON.parse(raw) as Partial<StoreData>;
+    return {
+      games: parsed.games || [],
+      photos: parsed.photos || [],
+      orders: parsed.orders || [],
+    } as StoreData;
+  } catch (error) {
+    // If exact parsing fails (e.g. corrupted JSON string), fallback to empty store to prevent permanent 500 crashes
+    console.error("Corrupted store.json detected. Falling back to empty store.", error);
+    return structuredClone(emptyStore);
+  }
 }
 
 export async function writeStore(store: StoreData) {
