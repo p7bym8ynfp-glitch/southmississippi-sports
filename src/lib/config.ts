@@ -74,7 +74,7 @@ export function getStorageDirectory() {
 
 export function getStripeSecretKey() {
   const value = getCleanEnvValue(process.env.STRIPE_SECRET_KEY);
-  return value.startsWith("sk_") ? value : "";
+  return value.startsWith("sk_") || value.startsWith("rk_") ? value : "";
 }
 
 export function getStripeWebhookSecret() {
