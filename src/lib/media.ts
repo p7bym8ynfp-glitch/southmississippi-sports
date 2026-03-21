@@ -212,7 +212,7 @@ export async function createGameArchive(
   await new Promise<void>((resolve, reject) => {
     const output = createWriteStream(archivePath);
     const archive = archiver("zip", {
-      zlib: { level: 9 },
+      zlib: { level: 0 }, // JPEGs are already compressed. Level 9 causes OOM on small instances.
     });
 
     output.on("close", () => resolve());

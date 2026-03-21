@@ -1,4 +1,5 @@
-﻿import { promises as fs } from "fs";
+import { createReadStream } from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 
 import { NextResponse } from "next/server";
@@ -10,6 +11,20 @@ export const runtime = "nodejs";
 
 function buildAttachmentHeader(filename: string) {
   return `attachment; filename="download"; filename*=UTF-8''${encodeURIComponent(filename)}`;
+}
+
+function streamFile(filePath: string): ReadableStream {
+  const nodeStream = createReadStream(filePath);
+  return new ReadableStream({
+    start(controller) {
+      nodeStream.on("data", (chunk) => controller.enqueue(new Uint8Array(chunk as Buffer)));
+      nodeStream.on("end", () => controller.close());
+      nodeStream.on("error", (err) => controller.error(err));
+    },
+    cancel() {
+      nodeStream.destroy();
+    },
+  });
 }
 
 export async function GET(
@@ -34,11 +49,14 @@ export async function GET(
 
     try {
       const archivePath = getDeliveryArchivePath(token);
-      const buffer = await fs.readFile(archivePath);
-      return new NextResponse(buffer, {
+      const stat = await fs.stat(archivePath);
+      const stream = streamFile(archivePath);
+      
+      return new NextResponse(stream, {
         headers: {
           "Content-Type": "application/zip",
           "Content-Disposition": buildAttachmentHeader(`${bundle.game.slug}.zip`),
+          "Content-Length": stat.size.toString(),
         },
       });
     } catch {
@@ -54,7 +72,9 @@ export async function GET(
 
   try {
     const originalPath = getOriginalPath(bundle.game.slug, photo.originalFilename);
-    const buffer = await fs.readFile(originalPath);
+    const stat = await fs.stat(originalPath);
+    const stream = streamFile(originalPath);
+    
     const extension = path.extname(photo.originalFilename).toLowerCase();
     const contentType =
       extension === ".png"
@@ -63,10 +83,11 @@ export async function GET(
           ? "image/webp"
           : "image/jpeg";
 
-    return new NextResponse(buffer, {
+    return new NextResponse(stream, {
       headers: {
         "Content-Type": contentType,
         "Content-Disposition": buildAttachmentHeader(photo.originalName),
+        "Content-Length": stat.size.toString(),
       },
     });
   } catch {
