@@ -96,19 +96,20 @@ async function getWatermarkLayers(
       finalWatermarkPath = fallbackWatermarkPath;
     }
     
-    // Custom watermark logo (QR Code)
+    // Custom watermark logo
+    // Using true multiply blend ensures white backgrounds become fully transparent,
+    // seamlessly burning the dark pelican ink into the sports photographs.
     const watermark = await sharp(finalWatermarkPath)
       .resize({
-        width: Math.max(380, Math.floor(width * 0.50)), // Larger size
-        withoutEnlargement: true,
+        width: Math.round(width * 0.5),
+        height: Math.round(height * 0.5),
+        fit: "inside",
       })
-      .png()
-      .ensureAlpha(0.45) // Better visibility
       .toBuffer();
 
     return [
       { input: getTextWatermarkOverlay(width, height, true) }, // Text layer (banner only)
-      { input: watermark, gravity: "center" } // Centered Logo
+      { input: watermark, gravity: "center", blend: "multiply" } // Centered Logo
     ];
   } catch {
     // Fallback to repeating text pattern

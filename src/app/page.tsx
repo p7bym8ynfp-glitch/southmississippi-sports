@@ -36,9 +36,14 @@ export default async function Home() {
         
         <div className="relative z-10 w-full max-w-6xl px-6 text-center space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-1000">
            <div className="flex flex-col items-center gap-4">
-              <p className="inline-flex rounded-full border border-white/20 bg-white/5 backdrop-blur-md px-5 py-2 text-xs uppercase tracking-[0.4em] text-amber-400">
-                {siteConfig.domain}
-              </p>
+              <div className="relative mb-4 h-48 w-48 overflow-hidden rounded-full border-4 border-white/20 bg-white shadow-[0_0_40px_rgba(255,255,255,0.2)] sm:h-56 sm:w-56 transition-transform hover:scale-105 duration-500">
+                <Image 
+                  src="/logo-transparent.png" 
+                  alt="South Mississippi Sports Pelican Logo" 
+                  fill 
+                  className="object-cover p-2"
+                />
+              </div>
               <h1 className="max-w-4xl text-5xl leading-[1.1] font-bold tracking-tighter sm:text-7xl lg:text-8xl drop-shadow-2xl">
                 ELITE GAME DAY PHOTOGRAPHY
               </h1>
