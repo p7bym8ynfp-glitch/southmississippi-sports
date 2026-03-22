@@ -13,7 +13,7 @@ const storageRoot = path.resolve(process.cwd(), getStorageDirectory());
 const originalsRoot = path.join(storageRoot, "originals");
 const previewsRoot = path.join(storageRoot, "previews");
 const deliveriesRoot = path.join(storageRoot, "deliveries");
-const watermarkPath = path.join(storageRoot, "watermark.png");
+const watermarkPath = path.join(storageRoot, "custom-watermark.png");
 const fallbackWatermarkPath = path.join(process.cwd(), "public", "watermark.png");
 const supportedImageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"]);
 const supportedImageMimeTypes = new Set([
@@ -256,7 +256,12 @@ export async function hasWatermarkImage() {
     await fs.access(watermarkPath);
     return true;
   } catch {
-    return false;
+    try {
+      await fs.access(fallbackWatermarkPath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
