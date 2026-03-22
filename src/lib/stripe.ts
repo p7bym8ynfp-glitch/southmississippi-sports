@@ -1,4 +1,4 @@
-﻿import Stripe from "stripe";
+import Stripe from "stripe";
 
 import {
   getAppUrl,
@@ -52,6 +52,15 @@ export async function createCheckoutSession(input: {
     billing_address_collection: "auto",
     success_url: `${getAppUrl()}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${getAppUrl()}/games/${input.game.slug}`,
+    allow_promotion_codes: true,
+    phone_number_collection: {
+      enabled: true,
+    },
+    custom_text: {
+      submit: {
+        message: "Your unwatermarked downloads will be emailed instantly.",
+      },
+    },
     metadata: {
       kind: input.kind,
       gameId: input.game.id,
