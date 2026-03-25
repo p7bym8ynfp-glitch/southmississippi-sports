@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { pricing, siteConfig } from "@/lib/config";
+import { pricing } from "@/lib/config";
 import { getCatalogStats, listGames, listPhotosForGame } from "@/lib/store";
 import { formatGameDate, formatMoney } from "@/lib/utils";
 

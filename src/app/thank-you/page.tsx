@@ -69,7 +69,7 @@ export default async function ThankYouPage({
             <div className="space-y-4 rounded-3xl bg-white/5 border border-white/5 p-6 backdrop-blur-sm">
                 <p className="text-sm leading-relaxed text-slate-300">
                   <span className="text-amber-400 font-bold uppercase tracking-wider text-[10px] mr-2">Digital Delivery:</span>
-                  We've also dispatched your order to <strong className="text-white font-black">{bundle.order.email}</strong>. If file sizes exceed attachment limits, please use the secure links above for immediate access.
+                  We&apos;ve also dispatched your order to <strong className="text-white font-black">{bundle.order.email}</strong>. If file sizes exceed attachment limits, please use the secure links above for immediate access.
                 </p>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import fs from "fs/promises";
 import path from "path";
 
 async function processLogo() {
@@ -26,6 +27,11 @@ async function processLogo() {
     .toFile(outputWatermark);
     
   console.log("Saved watermark.png!");
+  
+  // Ensure the storage directory exists and copy the watermark there for the media library
+  await fs.mkdir("storage", { recursive: true });
+  await fs.copyFile(outputWatermark, "storage/custom-watermark.png");
+  console.log("Saved custom-watermark.png to storage!");
 }
 
 processLogo().catch(console.error);

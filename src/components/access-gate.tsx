@@ -16,6 +16,7 @@ export function AccessGate({ children, requiredCode }: AccessGateProps) {
   useEffect(() => {
     const isGranted = localStorage.getItem("site-access-granted") === "true";
     if (isGranted || !requiredCode) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGranted(true);
     }
     setLoading(false);
@@ -50,6 +51,7 @@ export function AccessGate({ children, requiredCode }: AccessGateProps) {
       <div className="relative z-10 w-full max-w-sm space-y-10 animate-in fade-in zoom-in duration-700">
         <div className="space-y-6">
           <div className="mx-auto w-32 h-32 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl group transition-all duration-500 hover:border-[#ff3b3b]/50">
+             {/* eslint-disable-next-line @next/next/no-img-element */}
              <img 
                src="/watermark.png" 
                alt="QR Access" 
