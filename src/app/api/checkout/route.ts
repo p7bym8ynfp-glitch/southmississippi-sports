@@ -1,4 +1,5 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import { createCheckoutSession } from "@/lib/stripe";
 import { getGameById, getPhotoById, listPhotosForGame } from "@/lib/store";
@@ -69,4 +70,8 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : "Unable to start checkout.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+export async function GET() {
+  const { getStripeClient } = await import("@/lib/stripe");
+  return NextResponse.json({ configured: !!getStripeClient() });
 }

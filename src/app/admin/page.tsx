@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { AddPhotosButton } from "@/components/add-photos-button";
 import { DeleteGameButton } from "@/components/delete-game-button";
 import { isAdminSession } from "@/lib/auth";
-import { hasAdminPassword } from "@/lib/config";
+import { hasAdminPassword, isStripeConfigured, isEmailConfigured } from "@/lib/config";
 import { getWatermarkPath, hasWatermarkImage } from "@/lib/media";
 import { getAdminGameSummaries, getCatalogStats, listAdminGames } from "@/lib/store";
 
@@ -200,8 +200,8 @@ export default async function AdminPage({
           <article className="rounded-[32px] border border-[var(--page-line)] bg-[var(--page-card)] p-8 shadow-[0_18px_40px_rgba(8,18,32,0.08)]">
             <h2 className="text-3xl">Setup reminders</h2>
             <ul className="mt-5 space-y-3 text-sm leading-6 text-[var(--page-muted)]">
-              <li>Set Stripe keys before testing live checkout.</li>
-              <li>Set SMTP details to email buyers immediately after payment.</li>
+              {!isStripeConfigured() && <li>Set Stripe keys before testing live checkout.</li>}
+              {!isEmailConfigured() && <li>Set SMTP details to email buyers immediately after payment.</li>}
               <li>Drop your watermark PNG at <code>{getWatermarkPath()}</code> if you want your own logo instead of the text fallback.</li>
             </ul>
           </article>

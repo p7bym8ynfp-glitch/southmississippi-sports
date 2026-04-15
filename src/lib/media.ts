@@ -109,7 +109,7 @@ async function getWatermarkLayers(
 
     return [
       { input: getTextWatermarkOverlay(width, height, true) }, // Text layer (banner only)
-      { input: watermark, gravity: "center", blend: "multiply" } // Centered Logo
+      { input: watermark, gravity: "center", blend: "over" } // Centered Logo
     ];
   } catch {
     // Fallback to repeating text pattern

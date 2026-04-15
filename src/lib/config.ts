@@ -12,7 +12,7 @@ export const pricing = {
 
 export const deliveryWindowDays = 7;
 
-function getCleanEnvValue(value?: string) {
+export function getCleanEnvValue(value?: string) {
   return value?.trim() ?? "";
 }
 
@@ -73,7 +73,8 @@ export function getStorageDirectory() {
 }
 
 export function getStripeSecretKey() {
-  const value = getCleanEnvValue(process.env.STRIPE_SECRET_KEY);
+  const raw = process.env.STRIPE_SECRET_KEY;
+  const value = getCleanEnvValue(raw);
   return value.startsWith("sk_") || value.startsWith("rk_") ? value : "";
 }
 
